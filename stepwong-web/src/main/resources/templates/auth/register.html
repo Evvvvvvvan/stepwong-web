@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册 - Stepwong Web</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="auth-body">
+<div class="auth-card">
+    <div class="brand">Stepwong Web</div>
+    <h1>注册</h1>
+    <p class="muted">注册后创建独立空间，账号密码和执行日志按登录用户隔离。</p>
+
+    <form th:action="@{/register}" th:object="${form}" method="post" class="form">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <div class="alert error" th:if="${#fields.hasGlobalErrors()}" th:each="err : ${#fields.globalErrors()}" th:text="${err}"></div>
+        <label>
+            <span>登录账号</span>
+            <input type="text" th:field="*{username}" autocomplete="username" required>
+            <small class="field-error" th:errors="*{username}"></small>
+        </label>
+        <label>
+            <span>昵称</span>
+            <input type="text" th:field="*{nickname}">
+            <small class="field-error" th:errors="*{nickname}"></small>
+        </label>
+        <label>
+            <span>登录密码</span>
+            <input type="password" th:field="*{password}" autocomplete="new-password" required>
+            <small class="field-error" th:errors="*{password}"></small>
+        </label>
+        <label>
+            <span>确认密码</span>
+            <input type="password" th:field="*{confirmPassword}" autocomplete="new-password" required>
+            <small class="field-error" th:errors="*{confirmPassword}"></small>
+        </label>
+        <button class="primary" type="submit">注册</button>
+    </form>
+
+    <div class="auth-link">
+        已有账号？<a th:href="@{/login}">返回登录</a>
+    </div>
+</div>
+</body>
+</html>

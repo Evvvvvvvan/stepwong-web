@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>账号列表 - Stepwong Web</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<header class="topbar">
+    <div class="brand">Stepwong Web</div>
+    <nav>
+        <a class="active" th:href="@{/accounts}">账号列表</a>
+        <a th:href="@{/logs}">执行日志</a>
+        <form th:action="@{/logout}" method="post" class="inline-form">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <button class="link-button" type="submit">退出</button>
+        </form>
+    </nav>
+</header>
+
+<main class="container">
+    <section class="page-head">
+        <div>
+            <h1>账号密码列表</h1>
+            <p class="muted">每条记录都绑定当前登录用户，列表查询和操作都会校验归属。</p>
+        </div>
+        <a class="primary small" th:href="@{/accounts/new}">添加账号</a>
+    </section>
+
+    <div class="alert success" th:if="${success}" th:text="${success}"></div>
+    <div class="alert error" th:if="${error}" th:text="${error}"></div>
+    <div class="alert info" th:if="${revealedPassword}">
+        当前显示的明文密码：<strong th:text="${revealedPassword}"></strong>
+    </div>
+
+    <section class="card">
+        <div class="empty" th:if="${#lists.isEmpty(accounts)}">
+            <h2>还没有账号</h2>
+            <p>添加第一个账号后，可以设置步数范围、定时小时和是否自动执行。</p>
+            <a class="primary small" th:href="@{/accounts/new}">立即添加</a>
+        </div>
+
+        <div class="table-wrap" th:if="${!#lists.isEmpty(accounts)}">
+            <table>
+                <thead>
+                <tr>
+                    <th>展示名称</th>
+                    <th>账号</th>
+                    <th>密码</th>
+                    <th>步数范围</th>
+                    <th>定时</th>
+                    <th>状态</th>
+                    <th>最近执行</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="account : ${accounts}">
+                    <td th:text="${account.displayName}"></td>
+                    <td th:text="${account.accountNo}"></td>
+                    <td>
+                        <span th:text="${maskedPassword}"></span>
+                        <form th:action="@{/accounts/{id}/reveal(id=${account.id})}" method="post" class="inline-form">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <button type="submit" class="link-button">显示</button>
+                        </form>
+                    </td>
+                    <td th:text="${account.minStep + ' ~ ' + account.maxStep}"></td>
+                    <td>
+                        <span th:if="${account.autoEnabled}" th:text="${#numbers.formatInteger(account.runHour, 2) + ':' + #numbers.formatInteger(account.runMinute, 2)}"></span>
+                        <span th:if="${!account.autoEnabled}">未启用</span>
+                    </td>
+                    <td>
+                        <span class="badge good" th:if="${account.enabled}">启用</span>
+                        <span class="badge off" th:if="${!account.enabled}">停用</span>
+                    </td>
+                    <td>
+                        <span th:if="${account.lastRunAt != null}" th:text="${account.lastRunAtText}"></span>
+                        <span th:if="${account.lastRunAt == null}">暂无</span>
+                    </td>
+                    <td class="actions">
+                        <form th:action="@{/accounts/{id}/execute(id=${account.id})}" method="post" class="inline-form">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <button type="submit" class="secondary">立即执行</button>
+                        </form>
+                        <a class="secondary" th:href="@{/accounts/{id}/edit(id=${account.id})}">编辑</a>
+                        <form th:action="@{/accounts/{id}/delete(id=${account.id})}" method="post" class="inline-form" onsubmit="return confirm('确认删除该账号吗？')">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <button type="submit" class="danger">删除</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+</body>
+</html>

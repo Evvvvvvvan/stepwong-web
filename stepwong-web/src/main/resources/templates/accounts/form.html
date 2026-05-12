@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${mode == 'create' ? '添加账号' : '编辑账号'} + ' - Stepwong Web'"></title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<header class="topbar">
+    <div class="brand">Stepwong Web</div>
+    <nav>
+        <a th:href="@{/accounts}">账号列表</a>
+        <a th:href="@{/logs}">执行日志</a>
+        <form th:action="@{/logout}" method="post" class="inline-form">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <button class="link-button" type="submit">退出</button>
+        </form>
+    </nav>
+</header>
+
+<main class="container narrow">
+    <section class="page-head">
+        <div>
+            <h1 th:text="${mode == 'create' ? '添加账号' : '编辑账号'}"></h1>
+            <p class="muted">密码使用 AES-GCM 加密入库，编辑时留空表示不修改原密码。</p>
+        </div>
+    </section>
+
+    <section class="card">
+        <form class="form grid-form"
+              th:object="${form}"
+              th:action="${mode == 'create'} ? @{/accounts} : @{/accounts/{id}(id=${accountId})}"
+              method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <div class="alert error" th:if="${#fields.hasGlobalErrors()}" th:each="err : ${#fields.globalErrors()}" th:text="${err}"></div>
+            <label>
+                <span>展示名称</span>
+                <input type="text" th:field="*{displayName}" placeholder="例如：主账号" required>
+                <small class="field-error" th:errors="*{displayName}"></small>
+            </label>
+
+            <label>
+                <span>账号</span>
+                <input type="text" th:field="*{accountNo}" placeholder="手机号或邮箱" required>
+                <small class="field-error" th:errors="*{accountNo}"></small>
+            </label>
+
+            <label>
+                <span th:text="${mode == 'create' ? '密码' : '密码（留空不修改）'}"></span>
+                <input type="password" th:field="*{password}" autocomplete="new-password" th:required="${mode == 'create'}">
+                <small class="field-error" th:errors="*{password}"></small>
+            </label>
+
+            <div class="two-cols">
+                <label>
+                    <span>最小步数</span>
+                    <input type="number" th:field="*{minStep}" min="1" max="200000" required>
+                    <small class="field-error" th:errors="*{minStep}"></small>
+                </label>
+                <label>
+                    <span>最大步数</span>
+                    <input type="number" th:field="*{maxStep}" min="1" max="200000" required>
+                    <small class="field-error" th:errors="*{maxStep}"></small>
+                </label>
+            </div>
+
+            <div class="two-cols">
+                <label>
+                    <span>每天执行小时</span>
+                    <input type="number" th:field="*{runHour}" min="0" max="23" required>
+                    <small class="field-error" th:errors="*{runHour}"></small>
+                </label>
+                <label>
+                    <span>每天执行分钟</span>
+                    <input type="number" th:field="*{runMinute}" min="0" max="59" required>
+                    <small class="field-error" th:errors="*{runMinute}"></small>
+                </label>
+            </div>
+
+            <label class="checkbox-line">
+                <input type="checkbox" th:field="*{autoEnabled}">
+                <span>启用每天定时自动执行</span>
+            </label>
+
+            <label class="checkbox-line">
+                <input type="checkbox" th:field="*{enabled}">
+                <span>启用该账号</span>
+            </label>
+
+            <div class="form-actions">
+                <button class="primary" type="submit">保存</button>
+                <a class="secondary" th:href="@{/accounts}">返回</a>
+            </div>
+        </form>
+    </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>执行日志 - Stepwong Web</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<header class="topbar">
+    <div class="brand">Stepwong Web</div>
+    <nav>
+        <a th:href="@{/accounts}">账号列表</a>
+        <a class="active" th:href="@{/logs}">执行日志</a>
+        <form th:action="@{/logout}" method="post" class="inline-form">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <button class="link-button" type="submit">退出</button>
+        </form>
+    </nav>
+</header>
+
+<main class="container">
+    <section class="page-head">
+        <div>
+            <h1>执行日志</h1>
+            <p class="muted">仅展示当前登录用户的最近 100 条执行记录。</p>
+        </div>
+    </section>
+
+    <section class="card">
+        <div class="empty" th:if="${#lists.isEmpty(logs)}">
+            <h2>暂无日志</h2>
+            <p>手动执行或定时任务触发后，会在这里看到执行结果。</p>
+        </div>
+
+        <div class="table-wrap" th:if="${!#lists.isEmpty(logs)}">
+            <table>
+                <thead>
+                <tr>
+                    <th>时间</th>
+                    <th>账号</th>
+                    <th>触发方式</th>
+                    <th>步数</th>
+                    <th>结果</th>
+                    <th>信息</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="log : ${logs}">
+                    <td th:text="${log.startedAtText}"></td>
+                    <td th:text="${log.accountNoSnapshot}"></td>
+                    <td th:text="${log.triggerType == 'SCHEDULED' ? '定时' : '手动'}"></td>
+                    <td th:text="${log.stepCount}"></td>
+                    <td>
+                        <span class="badge good" th:if="${log.success}">成功</span>
+                        <span class="badge off" th:if="${!log.success}">失败</span>
+                    </td>
+                    <td th:text="${log.message}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+</body>
+</html>
